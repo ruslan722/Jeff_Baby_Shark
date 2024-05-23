@@ -1,32 +1,26 @@
 import asyncio
-from aiogram import Bot, Dispatcher
-from dotenv import load_dotenv
-import os
-from utils.commands import set_commands
-from handlers.start import get_start
+from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command
-load_dotenv('.env')
+from aiogram.types import Message
+from handlers import include_routers
+bot = Bot("7088407944:AAEj6aTi2xMD1BlCan6k8UTSP3cRKFhv2Eo")
+dp = Dispatcher()
 
-token = os.getenv('TOKEN')
-admin_id = os.getenv('ADMIN_ID')
 
-bot =Bot(token=token)
-dp =Dispatcher()
+@dp.message(Command("start"))
+async def start(message: Message):
+    await message.answer("Выберите роль:\n"
+                          "/student - Зарегистрироваться как студент\n"
+                          "/teacher - Зарегистрироваться как преподаватель")
 
-async def start_bot(bot: Bot):
-    await bot.send_message(admin_id, text='Привет! Я Акуленок Джефф, я готов к работе.')
 
-    dp.startup.register(start_bot)
-
-dp.message.register(get_start, Command(commands='start'))
 
 
 async def main():
-    await set_commands(bot)
-    try:
-        await dp.start_polling(bot, skip_updates=True)
-    finally:
-        await bot.session.close()
+    include_routers (dp)
+    await bot.delete_webhook(drop_pending_updates=True)
+    await dp.start_polling(bot)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     asyncio.run(main())
