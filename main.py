@@ -1,5 +1,6 @@
 import asyncio
 import logging
+
 from aiogram import Bot, Dispatcher, F, Router
 from aiogram.filters import Command, CommandStart
 from aiogram.fsm.context import FSMContext
@@ -85,6 +86,23 @@ async def go_back_to_name(callback: CallbackQuery, state: FSMContext):
     text="Введите ваш возраст:",
     reply_markup=kb_anketa_cancel_and_back,
     )
+@dp.callback_query(F.data.startswith('gender_'))
+async def gender_choice(callback: CallbackQuery, state: FSMContext):
+    gender = 'М' if callback.data == 'gender_m' else 'Ж'
+    
+
+    await state.update_data(gender=gender)
+    
+  
+    user_data = await state.get_data()
+    name = user_data.get('name', '')
+    age = user_data.get('age', '')
+    gender = user_data.get('gender', '') 
+    await callback.message.answer(
+        text=f"Имя: {name}, Возраст: {age}, Пол: {gender}\nРегистрация завершена. Функционал бота открыт. Вы можете просматривать ачивки студентов!",
+    )
+    await state.reset_state()
+
 async def main():
     logging.basicConfig(level=logging.INFO)
     dp.include_routers(router)
