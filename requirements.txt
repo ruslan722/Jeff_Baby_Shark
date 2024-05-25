@@ -1,2 +1,2 @@
-aiograma
+aiogram
 peewee
