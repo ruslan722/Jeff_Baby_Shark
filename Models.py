@@ -9,6 +9,20 @@ class Student(Model):
     telegram_id = CharField()
     class Meta:
         database = db
+
+class Teacher(Model):
+    name_s = CharField()
+    age_s = CharField()
+    gender_s = CharField()
+    telegram_id = CharField()
+    class Meta:
+        database = db
+class Achievements(Model):
+    name = CharField()
+    achievements = CharField()
+    class Meta:
+        database = db
+
 db.connect()
-db.create_tables([Student])
+db.create_tables([Student, Teacher, Achievements])
 
