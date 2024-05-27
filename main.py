@@ -21,29 +21,80 @@ async def fast_start(message: Message):
     await message.answer(
         text=f"Привет,{message.from_user.full_name}, я акуленок Джефф, я выдаю ачивки студентам, выбери кем зарегистрироваться \n/student\n/teacher",
     )
-@dp.message(F.text.in_('/student'))
+@dp.message(Command('student'))
 async def student(message: Message, state: FSMContext):
     await state.update_data(name_=message.text)
-    await message.answer(
-        text="Введите ваше ФИО:",
-        reply_markup=kb_anketa_cancel,
-    )
-    await state.update_data(name_user=message.text)
-    await state.set_state(Anketa_S.name)
-@dp.message(F.text.in_('/teacher'))
+    array_y = []
+    for id in Student.select():
+        array_y.append(str(id.telegram_id))
+
+    for id in Teacher.select():
+        array_y.append(str(id.telegram_id))
+    if str(message.from_user.id) in array_y:
+        await message.answer(
+            text='Вы уже зарегистрированы!',
+        )
+    else:
+        await message.answer(
+            text="Введите ваше ФИО:",
+            reply_markup=kb_anketa_cancel,
+        )
+        await state.update_data(name_user=message.text)
+        await state.set_state(Anketa_S.name)
+@dp.message(Command('teacher'))
 async def teacher(message: Message, state: FSMContext):
     await state.update_data(name_user=message.text)
+    array_y = []
+    for id in Teacher.select():
+        array_y.append(str(id.telegram_id))
+
+    for id in Student.select():
+        array_y.append(str(id.telegram_id))
+    if str(message.from_user.id) in array_y:
+        await message.answer(
+            text='Вы уже зарегистрированы!',
+        )
+    else:
+        await message.answer(
+            text="Введите ваше ФИО:",
+            reply_markup=kb_anketa_cancel,
+        )
+        await state.set_state(Anketa_S.name)
+@dp.message(Command('list_student'))
+async def list_student(message: Message):
+    string_st = ''
+    index = 1
+    for list_st in Student.select():
+        string_st += str(index) + ') ' + list_st.name_s + '\t' + "возраст: " + list_st.age_s + " пол: " + list_st.gender_s + '\n'
+        index += 1
     await message.answer(
-        text="Введите ваше ФИО:",
-        reply_markup=kb_anketa_cancel,
+        text=string_st,
     )
-    await state.set_state(Anketa_S.name)
-@dp.message(F.text.in_('/achievements'))
+@dp.message(Command('achievements'))
 async def achievement(message: Message, state: FSMContext):
     await state.set_state(Anketa_S.achievement)
-    await message.answer(
-        text="Перед тем как присваевать студенту достижение напишите его ФИО:",
-    )
+    array_x = []
+    string_n = ''
+    index = 0
+    for id_s in Student.select():
+        array_x.append(str(id_s.telegram_id))
+    for ach in Achievements.select():
+        index += 1
+        string_n += str(index) + ') ' + ach.name + ':\t' + ach.achievements + '\n'
+    if str(message.from_user.id) in array_x:
+        await message.answer(
+            text=f"Список ачивок:\n{string_n}",
+        )
+    array_y = []
+    for id_t in Teacher.select():
+        array_y.append(str(id_t.telegram_id))
+    if str(message.from_user.id) in array_y:
+        await message.answer(
+            text=f"Список ачивок:\n{string_n}",
+        )
+        await message.answer(
+            text="Перед тем как присваевать студенту достижение напишите его ФИО:",
+        )
 @dp.message(Anketa_S.achievement)
 async def student_name(message: Message, state: FSMContext):
     await state.update_data(name_st=message.text)
@@ -88,7 +139,7 @@ async def gender_user(message: Message, state: FSMContext):
     if message.text == 'М' or message.text == 'Ж':
         user_data = await state.get_data()
         await message.answer(
-            text= f"Имя: {user_data['name_']}, Возраст: {user_data['age_']}, Пол: {user_data['gender_']}",
+            text= f"ФИО: {user_data['name_']}, Возраст: {user_data['age_']}, Пол: {user_data['gender_']}",
         )
         await message.answer(
             text="Регистрация завершена, функционал бота открыт.\n Вы можете просматривать ачивки студентов!",
@@ -103,7 +154,7 @@ async def sending(callback: CallbackQuery, state: FSMContext):
 async def go_back_to_name(callback: CallbackQuery, state: FSMContext):
     await state.set_state(Anketa_S.name)
     await callback.message.answer(
-    text="Введите ваше имя:",
+    text="Введите ваше ФИО:",
     reply_markup=kb_anketa_cancel,
     )
 @dp.callback_query(Anketa_S.gender, F.data == 'back_anketa')
@@ -131,9 +182,9 @@ async def gender_choice(callback: CallbackQuery, state: FSMContext):
         user_student.save()
     else:
         await callback.message.answer(
-            text=f"Имя: {name}, Возраст: {age}, Пол: {gender}\nРегистрация завершена. Доступ к функциям бота открыт.\nВы можете просматривать количество зарегистрированных студентов и выдавать ачивки использовав команду:\n/achievement",
+            text=f"ФИО: {name}, Возраст: {age}, Пол: {gender}\nРегистрация завершена. Доступ к функциям бота открыт.\nВы можете просматривать количество зарегистрированных студентов и выдавать ачивки использовав команду:\n/achievement",
         )
-        user_teacher = Student(name_s=name, age_s=age, gender_s=gender, telegram_id=tg_id)
+        user_teacher = Teacher(name_s=name, age_s=age, gender_s=gender, telegram_id=tg_id)
         user_teacher.save()
     await state.clear()
 
