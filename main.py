@@ -4,7 +4,7 @@ from aiogram import Bot, Dispatcher, F, Router
 from aiogram.filters import Command, CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, InputFile
 from Models import Student, Teacher, Achievements
 from keyboard import kb_anketa_cancel_and_back, kb_anketa_cancel, kb_anketa_by_gender
 bot = Bot("7088407944:AAEj6aTi2xMD1BlCan6k8UTSP3cRKFhv2Eo")
@@ -137,6 +137,9 @@ async def gender_choice(callback: CallbackQuery, state: FSMContext):
         user_teacher.save()
     await state.clear()
 
+async def set_bot_avatar(bot: Bot):
+    with open('shark_jeff.jpg', 'rb') as photo:
+        await bot.set_my_profile_photo(photo=InputFile(photo))
 async def main():
     logging.basicConfig(level=logging.INFO)
     dp.include_routers(router)
