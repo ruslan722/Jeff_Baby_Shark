@@ -188,8 +188,10 @@ async def gender_choice(callback: CallbackQuery, state: FSMContext):
         user_teacher.save()
     await state.clear()
 
+
 async def main():
     logging.basicConfig(level=logging.INFO)
+ 
     dp.include_routers(router)
     await dp.start_polling(bot)
 
