@@ -182,7 +182,7 @@ async def gender_choice(callback: CallbackQuery, state: FSMContext):
         user_student.save()
     else:
         await callback.message.answer(
-            text=f"ФИО: {name}, Возраст: {age}, Пол: {gender}\nРегистрация завершена. Доступ к функциям бота открыт.\nВы можете просматривать количество зарегистрированных студентов и выдавать ачивки использовав команду:\n/achievement",
+            text=f"ФИО: {name}, Возраст: {age}, Пол: {gender}\nРегистрация завершена. Доступ к функциям бота открыт.\nВы можете просматривать количество зарегистрированных студентов и выдавать ачивки использовав команду:\n/achievements",
         )
         user_teacher = Teacher(name_s=name, age_s=age, gender_s=gender, telegram_id=tg_id)
         user_teacher.save()
