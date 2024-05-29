@@ -16,6 +16,11 @@ class Anketa_S (StatesGroup):
     name = State()
     age = State()
     gender = State()
+    async def id_registered(user_id):
+        user_ids =[str(u.telegram_id)
+for u in Student.select()] + [str(u.telegram_id)
+for u in Teacher.select()]
+        return str(user_id) in user_ids
 @dp.message(CommandStart())
 async def fast_start(message: Message):
     await message.answer(
