@@ -5,7 +5,7 @@ from aiogram.filters import Command, CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message, CallbackQuery
-from Models import Student, Teacher, Achievements
+from models import Student, Teacher, Achievements
 from keyboard import kb_anketa_cancel_and_back, kb_anketa_cancel, kb_anketa_by_gender
 bot = Bot("7088407944:AAEj6aTi2xMD1BlCan6k8UTSP3cRKFhv2Eo")
 router = Router()
