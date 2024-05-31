@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message, CallbackQuery
 from models import Student, Teacher, Achievements
-from keyboard import kb_anketa_cancel_and_back, kb_anketa_cancel, kb_anketa_by_gender
+from keyboard import *
 bot = Bot("7088407944:AAEj6aTi2xMD1BlCan6k8UTSP3cRKFhv2Eo")
 router = Router()
 dp = Dispatcher()
@@ -25,8 +25,10 @@ for u in Teacher.select()]
 async def fast_start(message: Message):
     await message.answer(
         text=f"Привет,{message.from_user.full_name}, я акуленок Джефф, я выдаю ачивки студентам, выбери кем зарегистрироваться \n/student\n/teacher",
+        reply_markup=key_user(),
     )
-@dp.message(Command('student'))
+array_st = ['/student', 'Студент']
+@dp.message(F.text.in_(array_st))
 async def student(message: Message, state: FSMContext):
     await state.update_data(name_=message.text)
     array_y = []
@@ -46,7 +48,8 @@ async def student(message: Message, state: FSMContext):
         )
         await state.update_data(name_user=message.text)
         await state.set_state(Anketa_S.name)
-@dp.message(Command('teacher'))
+array_teach = ['/teacher', 'Учитель']
+@dp.message(F.text.in_(array_teach))
 async def teacher(message: Message, state: FSMContext):
     await state.update_data(name_user=message.text)
     array_y = []
@@ -65,17 +68,19 @@ async def teacher(message: Message, state: FSMContext):
             reply_markup=kb_anketa_cancel,
         )
         await state.set_state(Anketa_S.name)
-@dp.message(Command('list_student'))
+array_list = ['/list_student', 'Лист студентов']
+@dp.message(F.text.in_(array_list))
 async def list_student(message: Message):
     string_st = ''
     index = 1
     for list_st in Student.select():
-        string_st += str(index) + ') ' + list_st.name_s + '\t' + "возраст: " + list_st.age_s + " пол: " + list_st.gender_s + '\n'
+        string_st += str(index) + ') ' + list_st.name_s + '\n\t\t ' + "возраст: " + list_st.age_s + "\n\t\t пол: " + list_st.gender_s + '\n'
         index += 1
     await message.answer(
         text=string_st,
     )
-@dp.message(Command('achievements'))
+array_achiev = ['/achievements', 'Ачивки']
+@dp.message(F.text.in_(array_achiev))
 async def achievement(message: Message, state: FSMContext):
     await state.set_state(Anketa_S.achievement)
     array_x = []
@@ -179,9 +184,9 @@ async def gender_choice(callback: CallbackQuery, state: FSMContext):
     gender = user_data.get('gender_')
     tg_id = user_data.get('tg_id')
     user_bot = user_data.get('name_user')
-    if user_bot == '/student':
+    if user_bot == '/student' or user_bot == 'Студент':
         await callback.message.answer(
-            text=f"Имя: {name}, Возраст: {age}, Пол: {gender}\nРегистрация завершена. Функционал бота открыт. Вы можете просматривать ачивки студентов!",
+            text=f"ФИО: {name}, Возраст: {age}, Пол: {gender}\nРегистрация завершена. Функционал бота открыт. Вы можете просматривать ачивки студентов!",
         )
         user_student = Student(name_s=name, age_s=age, gender_s=gender, telegram_id=tg_id)
         user_student.save()
